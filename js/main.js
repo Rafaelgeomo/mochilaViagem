@@ -11,15 +11,28 @@ form.addEventListener("submit", (evento) => {
 
     const nome = evento.target.elements['nome']
     const quantidade = evento.target.elements['quantidade']
-       
+
+     const existe = itens.find(elemento => elemento.nome === nome.value) //perguntamos aos itens se aquele elemento ja existe
+    
     const itemAtual = {
         "nome": nome.value, 
         "quantidade": quantidade.value 
     }
-   
-    criaElemento(itemAtual);
 
-    itens.push(itemAtual);
+    if(existe){
+        itemAtual.id = existe.id
+
+        atualizaElemento(itemAtual) // se o item é encontrado so atualizamos
+    
+        itens[existe.id] = itemAtual
+    }else{
+        itemAtual.id = itens.length
+
+        criaElemento(itemAtual); // so o nome do item nao é encontrado, criamos um novo item
+
+        itens.push(itemAtual);
+
+    }            
 
     localStorage.setItem("itens", JSON.stringify(itens)); //transformando o objeto em uma string, pois localStore so permite guardar string
 
@@ -33,10 +46,32 @@ function criaElemento(item) {
 
     const numeroItem = document.createElement("strong");
     numeroItem.innerHTML = item.quantidade;
+    numeroItem.dataset.id = item.id
+    novoItem.appendChild(numeroItem);
 
-   novoItem.appendChild(numeroItem);
-   novoItem.innerHTML += item.nome;   
+    novoItem.innerHTML += item.nome;   
+
+    novoItem.appendChild(botaoDeleta())
 
    lista.appendChild(novoItem);   
    
+}
+
+function atualizaElemento(item){
+   document.querySelector("[data-id='"+item.id+"']").innerHTML = item.quantidade
+}
+
+function botaoDeleta(){
+    const elementoBotao = document.createElement("button")
+    elementoBotao.innerText = "X"
+
+    elementoBotao.addEventListener("click", function() {
+        deletaElemento(this.parentNode)
+    })
+
+    return elementoBotao
+}
+
+function deletaElemento(tag){
+    tag.remove()
 }
